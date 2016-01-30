@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lan="en" ng-app="pokedex">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pokédex Curso</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-theme-simplex.min.css">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">
+                <img src="img/logo.png"> Pokédex
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+  <!-- pokemon -->
+  <div ng-controller="PokemonController as pkmCtrl">
+    <div class="page-header">
+      <pokemon-name></pokemon-name>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <img class="avatar center-block" ng-src="{{pkmCtrl.pokemon.name | imageify}}">
+      </div>
+      <div class="col-md-6" ng-controller="TabsController as tabs">
+        <ul class="nav nav-tabs nav-justified">
+          <li ng-class="{ active:tabs.tab === 1 }"><a href="#" ng-click="tabs.selectTab(1)">Pokédex</a></li>
+          <li ng-class="{ active:tabs.tab === 2 }"><a href="#" ng-click="tabs.selectTab(2)">Stats</a></li>
+          <li ng-class="{ active:tabs.tab === 3 }"><a href="#" ng-click="tabs.selectTab(3)">Evolution</a></li>
+        </ul>
+        <div class="tab-content">
+          <!-- Pokedex -->
+          <div ng-show="tabs.tab === 1">
+            <pokemon-data></pokemon-data>  
+          </div>
+          <!-- Stats -->
+          <div ng-show="tabs.tab === 2">
+            <ul class="list-group">
+              <li class="list-group-item">
+                <strong>HP</strong>
+                <span class="badge">{{pkmCtrl.pokemon.stats.hp}}</span>
+              </li>
+              <li class="list-group-item">
+                <strong>Attack</strong>
+                <span class="badge">{{pkmCtrl.pokemon.stats.attack}}</span>
+              </li>
+              <li class="list-group-item">
+                <strong>Defense</strong>
+                <span class="badge">{{pkmCtrl.pokemon.stats.defense}}</span>
+              </li>
+              <li class="list-group-item">
+                <strong>Special Attack</strong>
+                <span class="badge">{{pkmCtrl.pokemon.stats['sp.atk']}}</span>
+              </li>
+              <li class="list-group-item">
+                <strong>Special Defense</strong>
+                <span class="badge">{{pkmCtrl.pokemon.stats['sp.def']}}</span>
+              </li>
+              <li class="list-group-item">
+                <strong>Speed</strong>
+                <span class="badge">{{pkmCtrl.pokemon.stats.speed}}</span>
+              </li>
+              <li class="list-group-item">
+                <strong>Total</strong>
+                <span class="badge">{{pkmCtrl.pokemon.stats.total}}</span>
+              </li>
+            </ul>
+          </div>
+          <!-- Evolution -->
+          <div ng-show="tabs.tab === 3">
+            <div class="text-center" ng-repeat="pokemon in pkmCtrl.pokemon.evolution">
+              <a href="#">
+                <img src="{{pokemon | imageify}}" width="160">
+                <p>
+                  <strong>{{pokemon}}</strong>
+                </p>
+              </a>
+              <span ng-hide="$last" class="glyphicon glyphicon-arrow-down"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Comentarios -->
+  <div ng-controller="CommentsController as cmtsCtrl" >
+    <button ng-hide="cmtsCtrl.show" ng-click="cmtsCtrl.toggle()" class="btn btn-primary">Show comments <span class="badge">{{cmtsCtrl.comments.length}}</span></button>
+    <div ng-show="cmtsCtrl.show"  class="panel panel-primary">
+        <div class="panel-heading">
+            <h1 class="panel-title">Comments <button ng-click="cmtsCtrl.toggle()" class="close pull-right">&times;</button></h1>
+        </div>
+        <div class="panel-body">
+            <form name="commentsForm" ng-submit="commentsForm.$valid && cmtsCtrl.addComment()" class="form-horizontal" role="form" novalidate>
+                <div class="form-group">
+                    <div class="col-sm-6">
+                        <textarea ng-model="cmtsCtrl.comment.body" placeholder="Please tell us what you think about {{pkmCtrl.pokemon.name}}" class="form-control"  required></textarea>
+                    </div>
+                    <div class="col-sm-4">
+                        <input ng-model="cmtsCtrl.comment.email" ng-disabled="cmtsCtrl.comment.anonymous" type="email" placeholder="Please enter your email address" class="form-control" ng-required="!cmtsCtrl.comment.anonymous">
+                        <label>
+                            <input ng-model="cmtsCtrl.comment.anonymous" ng-change="cmtsCtrl.anonymousChanged()" id="anonymous" type="checkbox"> Anonymous
+                        </label>
+                    </div>
+                    <div class="col-sm-2">
+                        <button type="submit" class="btn btn-lg">Comment</button>
+                    </div>
+                </div>
+            </form>
+            <div class="alert alert-danger" ng-if="!commentsForm.$valid">
+                Formulario Inválido                   
+            </div>
+            <blockquote ng-repeat="comment in cmtsCtrl.comments">
+                <p>{{comment.body}}</p>
+                <footer>
+                    Comment by 
+                    <a ng-if="!comment.anonymous" href="mailto:{{comment.email}}">{{comment.email}}</a> 
+                    <em ng-if="comment.anonymous">Anonymous</em>
+                    on <span>{{comment.date | date: 'medium'}}</span>
+                </footer>
+            </blockquote>
+        </div>
+    </div>
+
+  <!-- fin de comentarios -->
+    
+  </div>
+  <!-- /pokemon -->
+</div>
+
+<script src="js/lib/angular.min.js"></script>
+<script src="js/app.js"></script>
+</body>
+
+</html>
